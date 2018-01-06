@@ -11,6 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	proxyproto "github.com/armon/go-proxyproto"
 	"github.com/flashmob/go-guerrilla/backends"
 	"github.com/flashmob/go-guerrilla/log"
 	"github.com/flashmob/go-guerrilla/mail"
@@ -162,8 +163,17 @@ func (server *server) Start(startWG *sync.WaitGroup) error {
 	var clientID uint64
 	clientID = 0
 
-	listener, err := net.Listen("tcp", server.listenInterface)
+	var listener net.Listener
+	rawListener, err := net.Listen("tcp", server.listenInterface)
+
+	sc := server.configStore.Load().(ServerConfig)
+	if sc.HAProxyProtocolOn {
+		listener = &proxyproto.Listener{Listener: rawListener}
+	} else {
+		listener = rawListener
+	}
 	server.listener = listener
+
 	if err != nil {
 		startWG.Done() // don't wait for me
 		server.state = ServerStateStartError

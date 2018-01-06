@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/flashmob/go-guerrilla/backends"
-	"github.com/flashmob/go-guerrilla/log"
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/flashmob/go-guerrilla/backends"
+	"github.com/flashmob/go-guerrilla/log"
 )
 
 // AppConfig is the holder of the configuration of the app
@@ -64,6 +65,10 @@ type ServerConfig struct {
 	// XClientOn when using a proxy such as Nginx, XCLIENT command is used to pass the
 	// original client's IP address & client's HELO
 	XClientOn bool `json:"xclient_on,omitempty"`
+	// HAProxyProtocolOn when using HAProxy, AWS ELB or other PROXY protocol compatible proxy,
+	// this setting will allow guerrillad to scrape off the PROXY information including the clients IP address.
+	// http://www.haproxy.org/download/1.8/doc/proxy-protocol.txt
+	HAProxyProtocolOn bool `json:"haproxy_protocol_on,omitempty"`
 
 	// The following used to watch certificate changes so that the TLS can be reloaded
 	_privateKeyFile_mtime int
